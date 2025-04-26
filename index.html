@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>イストリア暦</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: linear-gradient(to right, #f0f0f0, #d0d0d0);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 10px;
+      color: #0d22be;
+    }
+    #istoria-time {
+      font-size: 1.8em;
+      color: #6675cc;
+    }
+  </style>
+</head>
+<body>
+
+<h1>後イストリア暦</h1>
+<div id="istoria-time">ロード中...</div>
+
+<script>
+  // イストリア暦の設定
+  const startTime = new Date('2024-03-17T00:00:00'); // 現実開始時間
+  const startIstoria = { year: 1, month: 1, day: 1, hour: 0, minute: 0 }; // 仮想開始時刻
+
+  // 仮想時間と現実時間の対応
+  const REAL_SECONDS_PER_ISTORIA_MINUTE = 2.5;
+  const ISTORIA_MINUTES_PER_HOUR = 60;
+  const ISTORIA_HOURS_PER_DAY = 24;
+  const ISTORIA_DAYS_PER_MONTH = 24;
+  const ISTORIA_MONTHS_PER_YEAR = 14;
+  const ISTORIA_MINUTES_PER_DAY = ISTORIA_HOURS_PER_DAY * ISTORIA_MINUTES_PER_HOUR;
+  const ISTORIA_MINUTES_PER_MONTH = ISTORIA_DAYS_PER_MONTH * ISTORIA_MINUTES_PER_DAY;
+  const ISTORIA_MINUTES_PER_YEAR = ISTORIA_MONTHS_PER_YEAR * ISTORIA_MINUTES_PER_MONTH;
+
+  function updateIstoriaTime() {
+    const now = new Date();
+    const elapsedRealSeconds = (now - startTime) / 1000; // 現実秒
+
+    const elapsedIstoriaMinutes = elapsedRealSeconds / REAL_SECONDS_PER_ISTORIA_MINUTE; // 仮想分
+
+    let totalMinutes = Math.floor(elapsedIstoriaMinutes);
+
+    let year = startIstoria.year + Math.floor(totalMinutes / ISTORIA_MINUTES_PER_YEAR);
+    totalMinutes %= ISTORIA_MINUTES_PER_YEAR;
+
+    let month = startIstoria.month + Math.floor(totalMinutes / ISTORIA_MINUTES_PER_MONTH);
+    totalMinutes %= ISTORIA_MINUTES_PER_MONTH;
+
+    let day = startIstoria.day + Math.floor(totalMinutes / ISTORIA_MINUTES_PER_DAY);
+    totalMinutes %= ISTORIA_MINUTES_PER_DAY;
+
+    let hour = startIstoria.hour + Math.floor(totalMinutes / ISTORIA_MINUTES_PER_HOUR);
+    let minute = startIstoria.minute + Math.floor(totalMinutes % ISTORIA_MINUTES_PER_HOUR);
+
+    // 月を超えたら調整
+    if (month > ISTORIA_MONTHS_PER_YEAR) {
+      year += Math.floor((month - 1) / ISTORIA_MONTHS_PER_YEAR);
+      month = ((month - 1) % ISTORIA_MONTHS_PER_YEAR) + 1;
+    }
+
+    // 日を超えたら調整
+    if (day > ISTORIA_DAYS_PER_MONTH) {
+      month += Math.floor((day - 1) / ISTORIA_DAYS_PER_MONTH);
+      day = ((day - 1) % ISTORIA_DAYS_PER_MONTH) + 1;
+    }
+
+    // 時を超えたら調整
+    if (hour >= ISTORIA_HOURS_PER_DAY) {
+      day += Math.floor(hour / ISTORIA_HOURS_PER_DAY);
+      hour = hour % ISTORIA_HOURS_PER_DAY;
+    }
+
+    // 月、年の再調整
+    if (month > ISTORIA_MONTHS_PER_YEAR) {
+      year += Math.floor((month - 1) / ISTORIA_MONTHS_PER_YEAR);
+      month = ((month - 1) % ISTORIA_MONTHS_PER_YEAR) + 1;
+    }
+    if (day > ISTORIA_DAYS_PER_MONTH) {
+      month += Math.floor((day - 1) / ISTORIA_DAYS_PER_MONTH);
+      day = ((day - 1) % ISTORIA_DAYS_PER_MONTH) + 1;
+    }
+
+    document.getElementById('istoria-time').textContent =
+      `第${year}年 ${month}月 ${day}日 ${hour}時 ${minute}分`;
+  }
+
+  updateIstoriaTime();
+  setInterval(updateIstoriaTime, 1000); // 1秒ごとに更新
+</script>
+
+</body>
+</html>
+
